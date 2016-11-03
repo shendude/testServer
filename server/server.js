@@ -1,10 +1,15 @@
 var express = require('express');
 var path = require('path');
-var vision = require('@google-cloud/vision');
+var Vision = require('@google-cloud/vision');
 var upload = require('express-fileupload');
 
-
 var app = express();
+
+var config = {
+  projectId: 'testapp-148322',
+  keyFilename: path.join(__dirname, '/testapp-cd0ba168840f.json')
+};
+var vision = Vision(config);
 
 app.use(upload());
 app.use('/', express.static(path.join(__dirname, '/../client')));
