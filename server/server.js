@@ -17,8 +17,6 @@ app.use('/', express.static(path.join(__dirname, '/../client')));
 app.post('/upload', function(req, res) {
   var dir = '/../' + req.file.path;
   var currPath = path.join(__dirname, dir);
-  console.log(req.file.path);
-
   var options = {
     verbose: true
   };

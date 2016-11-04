@@ -102,8 +102,8 @@
 	      return _react2.default.createElement(
 	        'div',
 	        null,
-	        _react2.default.createElement(_Upload2.default, { update: this.update }),
-	        _react2.default.createElement(_Draw2.default, { update: this.update })
+	        _react2.default.createElement(_Upload2.default, { update: this.update.bind(this) }),
+	        _react2.default.createElement(_Draw2.default, { data: this.state.shared })
 	      );
 	    }
 	  }]);
@@ -22012,18 +22012,14 @@
 
 	    var _this = _possibleConstructorReturn(this, (Upload.__proto__ || Object.getPrototypeOf(Upload)).call(this, props));
 
-	    _this.state = {
-	      shared: {
-	        file: null,
-	        data: null
-	      }
-	    };
+	    _this.uploadFile = _this.uploadFile.bind(_this);
 	    return _this;
 	  }
 
 	  _createClass(Upload, [{
 	    key: "uploadFile",
 	    value: function uploadFile(e) {
+	      var update = this.props.update;
 	      //prevent default button acton
 	      e.preventDefault();
 	      //get file object
@@ -22031,6 +22027,7 @@
 	      //create multipart form xhr request
 	      var formData = new FormData();
 	      formData.append("photo", photo);
+
 	      var xhr = new XMLHttpRequest();
 	      xhr.open("POST", "http://localhost:1337/upload");
 	      xhr.responseType = 'json';
@@ -22038,8 +22035,7 @@
 	        if (xhr.readyState === xhr.DONE) {
 	          if (xhr.status === 200) {
 	            //receive vision api response as json string
-	            this.props.update({ file: photo, data: JSON.parse(xhr.response) });
-	            console.log(xhr.response);
+	            update({ file: photo, data: xhr.response });
 	          }
 	        } else {
 	          console.log('error with xhr response');
@@ -22103,21 +22099,34 @@
 	  function Draw(props) {
 	    _classCallCheck(this, Draw);
 
-	    var _this = _possibleConstructorReturn(this, (Draw.__proto__ || Object.getPrototypeOf(Draw)).call(this, props));
-
-	    _this.state = {
-	      shared: {
-	        file: null,
-	        data: null
-	      }
-	    };
-	    return _this;
+	    return _possibleConstructorReturn(this, (Draw.__proto__ || Object.getPrototypeOf(Draw)).call(this, props));
 	  }
 
 	  _createClass(Draw, [{
+	    key: 'componentDidUpdate',
+	    value: function componentDidUpdate() {
+	      this.updateCanvas();
+	    }
+	  }, {
+	    key: 'updateCanvas',
+	    value: function updateCanvas() {
+	      var ctx = this.refs.canvas.getContext('2d');
+	      var file = this.props.data.file;
+	      var img = new Image();
+
+	      img.src = (window.URL ? URL : webkitURL).createObjectURL(file);
+	      img.onload = function () {
+
+	        console.log(img.height);
+	        console.log(img.width);
+	        ctx.drawImage(img, 0, 0, 500, 500);
+	      };
+	    }
+	  }, {
 	    key: 'render',
 	    value: function render() {
-	      return _react2.default.createElement('div', null);
+	      console.log(this.props.data.file);
+	      return _react2.default.createElement('canvas', { ref: 'canvas', width: 500, height: 500 });
 	    }
 	  }]);
 

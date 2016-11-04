@@ -23,8 +23,8 @@ class App extends React.Component {
   render() {
     return (
       <div>
-        <Upload update={this.update}/>
-        <Draw update={this.update}/>
+        <Upload update={this.update.bind(this)}/>
+        <Draw data={this.state.shared}/>
       </div>
     );
   }

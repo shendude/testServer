@@ -3,15 +3,11 @@ import React from "react";
 class Upload extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {
-      shared: {
-        file: null,
-        data: null
-      }
-    }
+    this.uploadFile = this.uploadFile.bind(this);
   }
   
   uploadFile(e) {
+    var update = this.props.update;
     //prevent default button acton
     e.preventDefault();
     //get file object
@@ -19,19 +15,19 @@ class Upload extends React.Component {
     //create multipart form xhr request
     var formData = new FormData();
     formData.append("photo", photo);
+    
     var xhr = new XMLHttpRequest();
     xhr.open("POST", "http://localhost:1337/upload");
     xhr.responseType = 'json';
     xhr.onload = function () {
-        if (xhr.readyState === xhr.DONE) {
-            if (xhr.status === 200) {
-              //receive vision api response as json string
-                this.props.update({file: photo, data: JSON.parse(xhr.response)});
-                console.log(xhr.response);
-            }
-        } else {
-          console.log('error with xhr response');
+      if (xhr.readyState === xhr.DONE) {
+        if (xhr.status === 200) {
+          //receive vision api response as json string
+          update({file: photo, data: xhr.response});
         }
+      } else {
+        console.log('error with xhr response');
+      }
     };
     xhr.send(formData);
   }
