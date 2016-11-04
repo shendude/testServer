@@ -15,7 +15,19 @@ var vision = gcloud.vision(config);
 app.use('/', express.static(path.join(__dirname, '/../client')));
 
 app.post('/upload', function(req, res) {
-    console.log(req.file);
+  var dir = '/../' + req.file.path;
+  var currPath = path.join(__dirname, dir);
+  console.log(req.file.path);
+
+  var options = {
+    verbose: true
+  };
+
+  vision
+    .detectText(currPath, options)
+    .then(function(data) {
+      res.send(JSON.stringify(data));
+    });
 });
 
 
