@@ -22099,7 +22099,10 @@
 	  function Draw(props) {
 	    _classCallCheck(this, Draw);
 
-	    return _possibleConstructorReturn(this, (Draw.__proto__ || Object.getPrototypeOf(Draw)).call(this, props));
+	    var _this = _possibleConstructorReturn(this, (Draw.__proto__ || Object.getPrototypeOf(Draw)).call(this, props));
+
+	    _this.context = null;
+	    return _this;
 	  }
 
 	  _createClass(Draw, [{
@@ -22108,25 +22111,182 @@
 	      this.updateCanvas();
 	    }
 	  }, {
-	    key: 'updateCanvas',
-	    value: function updateCanvas() {
-	      var ctx = this.refs.canvas.getContext('2d');
+	    key: 'processClick',
+	    value: function processClick(e) {
+	      //turns canvas clicks into x and y coords
+	      e.preventDefault();
+	      e.stopPropagation();
+	      var bound = this.refs.canvas.getBoundingClientRect();
+	      var myX = e.clientX - bound.left;
+	      var myY = e.clientY - bound.top;
+	      this.checkWord(myX, myY);
+	    }
+	  }, {
+	    key: 'checkWord',
+	    value: function checkWord(x, y) {
+	      //takes coords of clicks, iterates through data for matching word
+	      var data = this.props.data.data[0].slice(1);
+	      var _iteratorNormalCompletion = true;
+	      var _didIteratorError = false;
+	      var _iteratorError = undefined;
+
+	      try {
+	        for (var _iterator = data[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+	          var word = _step.value;
+
+	          var x1 = word.bounds[0].x;
+	          var x2 = word.bounds[0].x;
+	          var y1 = word.bounds[0].x;
+	          var y2 = word.bounds[0].x;
+	          var _iteratorNormalCompletion2 = true;
+	          var _didIteratorError2 = false;
+	          var _iteratorError2 = undefined;
+
+	          try {
+	            for (var _iterator2 = word.bounds[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+	              var bound = _step2.value;
+
+	              if (bound.x < x1) {
+	                x1 = bound.x;
+	              } else if (bound.x > x2) {
+	                x2 = bound.x;
+	              }
+	              if (bound.y < y1) {
+	                y1 = bound.y;
+	              } else if (bound.y > y2) {
+	                y2 = bound.y;
+	              }
+	            }
+	          } catch (err) {
+	            _didIteratorError2 = true;
+	            _iteratorError2 = err;
+	          } finally {
+	            try {
+	              if (!_iteratorNormalCompletion2 && _iterator2.return) {
+	                _iterator2.return();
+	              }
+	            } finally {
+	              if (_didIteratorError2) {
+	                throw _iteratorError2;
+	              }
+	            }
+	          }
+
+	          if (x > x1 && x < x2 && y > y1 && y < y2) {
+	            console.log(word.desc);
+	            break;
+	          }
+	        }
+	      } catch (err) {
+	        _didIteratorError = true;
+	        _iteratorError = err;
+	      } finally {
+	        try {
+	          if (!_iteratorNormalCompletion && _iterator.return) {
+	            _iterator.return();
+	          }
+	        } finally {
+	          if (_didIteratorError) {
+	            throw _iteratorError;
+	          }
+	        }
+	      }
+	    }
+	  }, {
+	    key: 'loadImg',
+	    value: function loadImg() {
+	      //controls all image drawing
+	      var ctx = this.context;
 	      var file = this.props.data.file;
 	      var img = new Image();
+	      var that = this;
 
 	      img.src = (window.URL ? URL : webkitURL).createObjectURL(file);
 	      img.onload = function () {
-
-	        console.log(img.height);
-	        console.log(img.width);
-	        ctx.drawImage(img, 0, 0, 500, 500);
+	        var x = img.width;
+	        var y = img.height;
+	        ctx.canvas.width = x;
+	        ctx.canvas.height = y;
+	        ctx.drawImage(img, 0, 0, x, y);
+	        that.drawBoxes();
 	      };
+	    }
+	  }, {
+	    key: 'updateCanvas',
+	    value: function updateCanvas() {
+	      //prepare canvas context, clears it before calling helpers
+	      var ctx = this.refs.canvas.getContext('2d');
+	      ctx.canvas.width = 0;
+	      ctx.canvas.height = 0;
+	      ctx.clearRect(0, 0, 0, 0);
+	      this.refs.canvas.onmousedown = this.processClick.bind(this);
+	      this.context = ctx;
+	      this.loadImg();
+	    }
+	  }, {
+	    key: 'drawBoxes',
+	    value: function drawBoxes() {
+	      //draws red boxes around recognized words
+	      var ctx = this.context;
+	      var data = this.props.data.data[0].slice(1);
+	      ctx.strokeStyle = 'rgba(255,0,0,0.8)';
+	      ctx.lineWidth = '2';
+	      var _iteratorNormalCompletion3 = true;
+	      var _didIteratorError3 = false;
+	      var _iteratorError3 = undefined;
+
+	      try {
+	        for (var _iterator3 = data[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+	          var word = _step3.value;
+
+	          ctx.beginPath();
+	          var _iteratorNormalCompletion4 = true;
+	          var _didIteratorError4 = false;
+	          var _iteratorError4 = undefined;
+
+	          try {
+	            for (var _iterator4 = word.bounds[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+	              var bound = _step4.value;
+
+	              ctx.lineTo(bound.x, bound.y);
+	            }
+	          } catch (err) {
+	            _didIteratorError4 = true;
+	            _iteratorError4 = err;
+	          } finally {
+	            try {
+	              if (!_iteratorNormalCompletion4 && _iterator4.return) {
+	                _iterator4.return();
+	              }
+	            } finally {
+	              if (_didIteratorError4) {
+	                throw _iteratorError4;
+	              }
+	            }
+	          }
+
+	          ctx.lineTo(word.bounds[0].x, word.bounds[0].y);
+	          ctx.stroke();
+	        }
+	      } catch (err) {
+	        _didIteratorError3 = true;
+	        _iteratorError3 = err;
+	      } finally {
+	        try {
+	          if (!_iteratorNormalCompletion3 && _iterator3.return) {
+	            _iterator3.return();
+	          }
+	        } finally {
+	          if (_didIteratorError3) {
+	            throw _iteratorError3;
+	          }
+	        }
+	      }
 	    }
 	  }, {
 	    key: 'render',
 	    value: function render() {
-	      console.log(this.props.data.file);
-	      return _react2.default.createElement('canvas', { ref: 'canvas', width: 500, height: 500 });
+	      return _react2.default.createElement('canvas', { ref: 'canvas' });
 	    }
 	  }]);
 
