@@ -42,6 +42,7 @@ class Draw extends React.Component {
       }
       
       if (x > x1 && x < x2 && y > y1 && y < y2) {
+        //FIXME
         console.log(word.desc);
         break;
       }

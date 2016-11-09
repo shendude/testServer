@@ -7,6 +7,7 @@ class Upload extends React.Component {
   }
   
   uploadFile(e) {
+    //retrieve parent callback
     var update = this.props.update;
     //prevent default button acton
     e.preventDefault();
@@ -23,6 +24,7 @@ class Upload extends React.Component {
       if (xhr.readyState === xhr.DONE) {
         if (xhr.status === 200) {
           //receive vision api response as json string
+          //set parent state with that data
           update({file: photo, data: xhr.response});
         }
       } else {
